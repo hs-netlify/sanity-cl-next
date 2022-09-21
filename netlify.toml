@@ -14,9 +14,6 @@
   CL_ENDPOINT = "https://henry-netlify.commercelayer.io"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[[plugins]]
   package = "netlify-plugin-inline-functions-env"
   [plugins.inputs]
     buildEvent = "onBuild"
