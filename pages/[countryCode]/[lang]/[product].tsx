@@ -1,7 +1,12 @@
-import React, { useContext, FunctionComponent } from 'react'
-import { GetStaticPaths, GetStaticProps } from 'next'
-import _ from 'lodash'
-import Layout from '@components/Layout'
+import React, {
+  useContext,
+  FunctionComponent,
+  useEffect,
+  useState,
+} from "react";
+import { GetStaticPaths, GetStaticProps } from "next";
+import _ from "lodash";
+import Layout from "@components/Layout";
 import {
   CommerceLayer,
   Price,
@@ -12,22 +17,22 @@ import {
   ItemContainer,
   AddToCartButton,
   OrderStorage,
-} from '@commercelayer/react-components'
-import LayoutContext from '@context/LayoutContext'
-import { useGetToken } from '@hooks/GetToken'
-import { useRouter } from 'next/router'
-import locale from '@locale/index'
-import { parseImg, parseLanguageCode } from '@utils/parser'
-import { cmsFunctions } from '@utils/cms'
-import { Product, Country } from '@typings/models'
+} from "@commercelayer/react-components";
+import LayoutContext from "@context/LayoutContext";
+import { useGetToken } from "@hooks/GetToken";
+import { useRouter } from "next/router";
+import locale from "@locale/index";
+import { parseImg, parseLanguageCode } from "@utils/parser";
+import { cmsFunctions } from "@utils/cms";
+import { Product, Country } from "@typings/models";
 
 const AddToCartCustom = (props: any) => {
-  const { className, label, disabled, handleClick } = props
-  const { handleAnimation } = useContext(LayoutContext)
+  const { className, label, disabled, handleClick } = props;
+  const { handleAnimation } = useContext(LayoutContext);
   const customHandleClick = async (e: any) => {
-    const { success } = await handleClick(e)
-    if (success && handleAnimation) handleAnimation(e)
-  }
+    const { success } = await handleClick(e);
+    if (success && handleAnimation) handleAnimation(e);
+  };
   return (
     <button
       disabled={disabled}
@@ -36,63 +41,74 @@ const AddToCartCustom = (props: any) => {
     >
       {label}
     </button>
-  )
-}
+  );
+};
 
 type Props = {
-  product: Product
-  clientId: string
-  endpoint: string
-  countryCode: string
-  lang: string
-  marketId: string
-  buildLanguages?: Country[]
-  cms: string
-  countries: Country[]
-}
+  product: Product;
+  clientId: string;
+  endpoint: string;
+  countryCode: string;
+  lang: string;
+  marketId: string;
+  buildLanguages?: Country[];
+  cms: string;
+  countries: Country[];
+  slug: string;
+};
 
 const ProductPage: FunctionComponent<Props> = ({
   product,
   clientId,
   endpoint,
   countryCode,
-  lang = 'en-US',
+  lang = "en-US",
   marketId,
   buildLanguages,
   cms,
   countries,
+  slug,
 }) => {
-  const router = useRouter()
+  const [updatedProduct, setproduct] = useState(product);
+  useEffect(() => {
+    const getProduct = async () => {
+      let updatedProduct = await fetchProduct(slug, lang);
+      setproduct(updatedProduct);
+    };
+    getProduct();
+  }, [slug, lang]);
+
+  const router = useRouter();
   const token = useGetToken({
     clientId,
     endpoint,
     scope: marketId,
     countryCode: router.query?.countryCode as string,
-  })
-  const imgUrl = parseImg(_.first(product?.images)?.url as string, cms)
-  const firstVariantCode = _.first(product?.variants)?.code
-  const variantOptions = product?.variants?.map((variant) => {
+  });
+  const imgUrl = parseImg(_.first(updatedProduct?.images)?.url as string, cms);
+  const firstVariantCode = _.first(updatedProduct?.variants)?.code;
+  const variantOptions = updatedProduct?.variants?.map((variant) => {
     return {
       label: variant.size.name,
       code: variant.code,
       lineItem: {
-        name: product.name,
+        name: updatedProduct.name,
         imageUrl: _.first(variant.images)?.url,
       },
-    }
-  })
+    };
+  });
   const handleBackTo = (e: any) => {
-    e.preventDefault()
-    router.back()
-  }
-  const languageCode = parseLanguageCode(lang, 'toLowerCase', true)
+    e.preventDefault();
+    router.back();
+  };
+  const languageCode = parseLanguageCode(lang, "toLowerCase", true);
   return !product ? null : (
     <CommerceLayer accessToken={token} endpoint={endpoint}>
       <OrderStorage persistKey={`order-${countryCode}`}>
         <OrderContainer attributes={{ language_code: languageCode }}>
           <Layout
             cms={cms}
-            title={product.name}
+            title={updatedProduct.name}
             lang={lang}
             buildLanguages={buildLanguages}
             countries={countries}
@@ -106,7 +122,7 @@ const ProductPage: FunctionComponent<Props> = ({
                     className="w-5 h-5 inline-block"
                   />
                   <p className="ml-2 hover:underline inline-block align-middle">
-                    {locale[lang].backToAllProducts}
+                    {locale[lang]?.backToAllProducts}
                   </p>
                 </a>
               </div>
@@ -114,7 +130,7 @@ const ProductPage: FunctionComponent<Props> = ({
                 <div className="flex flex-wrap sm:flex-nowrap sm:space-x-5 px-5 lg:px-0">
                   <div className="w-full pb-5 lg:pb-0">
                     <img
-                      alt={product.name}
+                      alt={updatedProduct.name}
                       className="w-full object-center rounded border border-gray-200"
                       src={imgUrl}
                     />
@@ -124,16 +140,18 @@ const ProductPage: FunctionComponent<Props> = ({
                       BRAND
                     </h2>
                     <h1 className="text-gray-900 text-3xl title-font font-medium my-3">
-                      {product.name}
+                      {updatedProduct.name}
                     </h1>
-                    <p className="leading-relaxed">{product.description}</p>
+                    <p className="leading-relaxed">
+                      {updatedProduct.description}
+                    </p>
                     <div className="flex items-center border-b-2 border-gray-200 py-5">
                       <div className="flex items-center">
                         <div className="relative" data-children-count="1">
                           <VariantsContainer>
                             <VariantSelector
-                              placeholder={locale[lang].selectSize as string}
-                              options={_.sortBy(variantOptions, 'label')}
+                              placeholder={locale[lang]?.selectSize as string}
+                              options={_.sortBy(variantOptions, "label")}
                               className="rounded border appearance-none border-gray-400 py-2 focus:outline-none focus:border-blue-500 text-base pl-3 pr-10"
                             />
                           </VariantsContainer>
@@ -164,7 +182,7 @@ const ProductPage: FunctionComponent<Props> = ({
                         </PricesContainer>
                       </span>
                       <AddToCartButton
-                        label={locale[lang].addToCart as string}
+                        label={locale[lang]?.addToCart as string}
                         className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm md:text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {AddToCartCustom}
@@ -178,39 +196,43 @@ const ProductPage: FunctionComponent<Props> = ({
         </OrderContainer>
       </OrderStorage>
     </CommerceLayer>
-  )
-}
+  );
+};
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
     fallback: true,
-  }
-}
+  };
+};
 
-export const getStaticProps: GetStaticProps = async ({ params }: any) => {
-  const lang = params?.lang as string
-  const cms = process.env.BUILD_CMS
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+}: any) => {
+  const lang = params?.lang as string;
+  const cms = process.env.BUILD_CMS;
   const countryCode =
-    params?.countryCode || process.env.BUILD_COUNTRY?.toLowerCase()
-  const slug = params?.product
+    params?.countryCode || process.env.BUILD_COUNTRY?.toLowerCase();
+  const slug = params?.product;
   const countries = _.has(cmsFunctions, `${cms}AllCountries`)
     ? await cmsFunctions[`${cms}AllCountries`](lang)
-    : {}
+    : {};
   const buildLanguages = _.compact(
-    process.env.BUILD_LANGUAGES?.split(',').map((l) => {
+    process.env.BUILD_LANGUAGES?.split(",").map((l) => {
       const country = countries.find(
         (country: Country) => country.code === parseLanguageCode(l)
-      )
-      return !_.isEmpty(country) ? country : null
+      );
+      return !_.isEmpty(country) ? country : null;
     })
-  )
+  );
   const country = countries.find(
     (country: Country) => country.code.toLowerCase() === countryCode
-  )
+  );
   const product = _.has(cmsFunctions, `${cms}GetProduct`)
     ? await cmsFunctions[`${cms}GetProduct`](slug, lang)
-    : {}
+    : {};
+
   return {
     props: {
       product,
@@ -222,9 +244,14 @@ export const getStaticProps: GetStaticProps = async ({ params }: any) => {
       buildLanguages,
       cms: process.env.BUILD_CMS,
       countries,
+      slug,
+      preview,
     },
     revalidate: 60,
-  }
-}
+  };
+};
 
-export default ProductPage
+const fetchProduct = async (slug: string, lang: string) => {
+  return await cmsFunctions[`sanityGetProduct`](slug, lang);
+};
+export default ProductPage;

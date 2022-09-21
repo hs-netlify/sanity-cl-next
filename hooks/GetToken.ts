@@ -19,7 +19,6 @@ export const useGetToken: UseGetToken = ({
 }) => {
   const [token, setToken] = useState("");
   useEffect(() => {
-    console.log("THIS IS THE SCOPE", scope);
     const getCookieToken = Cookies.get(`clAccessToken-${countryCode}`);
     if (!getCookieToken && clientId && endpoint) {
       const getToken = async () => {
