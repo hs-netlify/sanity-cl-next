@@ -6,12 +6,12 @@
 
 [build.environment]
   NEXT_SERVERLESS = "true"
-  SANITY_PROJECT_ID="wvv7gbzb"
+  SANITY_PROJECT_ID="2li0t47r"
   SANITY_DATASET="production"
   BUILD_LANGUAGES = "en-US,it-IT"
   BUILD_CMS = "sanity"
-  CL_CLIENT_ID = "ETpqt0R5oIDG8BgttE4idgGMkR6PeOkBCNnRhp-nvGk"
-  CL_ENDPOINT = "https://demo.commercelayer.io"
+  CL_CLIENT_ID = "ylA23OoZIrwixpsl0yKsDgcGhqoGWiZJSyRBoOWjSLc"
+  CL_ENDPOINT = "https://henry-netlify.commercelayer.io"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
