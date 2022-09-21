@@ -12,8 +12,3 @@
   BUILD_CMS = "sanity"
   CL_CLIENT_ID = "ylA23OoZIrwixpsl0yKsDgcGhqoGWiZJSyRBoOWjSLc"
   CL_ENDPOINT = "https://henry-netlify.commercelayer.io"
-
-[[plugins]]
-  package = "netlify-plugin-inline-functions-env"
-  [plugins.inputs]
-    buildEvent = "onBuild"
